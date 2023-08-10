@@ -1,0 +1,21 @@
+name: activity_count_classifier
+channels:
+    - conda-forge
+dependencies:
+- python=3.9
+- graphviz
+- h5py
+- keras-tuner==1.1.0
+- matplotlib
+- numpy
+- pandas
+- pip
+- progress
+- pydot
+- pytest
+- pyyaml
+- scikit-learn
+- tensorflow==2.6.0
+- scipy
+- pip:
+    - keras-tcn==3.4.0
