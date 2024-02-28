@@ -5,6 +5,7 @@ import pathlib
 
 # compute epoch counts to add to kept data stats table
 
+
 def mean_sd_text(values):
     return f'{np.mean(values):.1f} ({np.std(values, ddof=1):.1f})'
 
@@ -15,12 +16,12 @@ data_folds = data_folds.reset_index(drop=True)
 
 dataset_path = pathlib.Path('aligned_data/')
 
-for idx in range(len(data_folds)):
+for idx in data_folds.index:
     csv_filename = data_folds.loc[idx, 'csv_filename']
 
     data = pd.read_csv(dataset_path / csv_filename)
 
-    # two DeepSleeping datasets have mismarked 'lights off' times. This doesn't affect model traning, but load
+    # two DeepSleeping datasets have mismarked 'lights off' times. This doesn't affect model training, but load
     # the correct 'lights off' times here
     participant_id = data_folds.loc[idx, 'participant_id']
     participant_session = data_folds.loc[idx, 'participant_session']

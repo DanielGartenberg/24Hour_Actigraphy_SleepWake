@@ -131,7 +131,7 @@ sleep_metric_bland_altman_plot <- function(data_df, ref_var, comp_var, loa_type,
     xlab(x_label_text) + ylab(y_label_text) + 
     geom_text(mapping = aes(label=sprintf("Mean Bias: %0.2f (%s)", estimate, variable_units)), color='black',
               x = bias_text_x, y = bias_text_y, hjust = bias_text_hjust, vjust = bias_text_vjust,
-              size = 2, data = subset(bias_df, bias_df$term == 'Bias'), show.legend = FALSE) + 
+              size = 2, data = bias_df[bias_df$term == 'Bias', ], show.legend = FALSE) + 
     scale_x_continuous(breaks=scales::breaks_width(tick_interval), labels = tick_label_limiter) +
     scale_y_continuous(breaks=scales::breaks_width(tick_interval)) +
     coord_fixed(ratio=1, xlim = x_limits, ylim=y_limits) +
@@ -142,12 +142,12 @@ sleep_metric_bland_altman_plot <- function(data_df, ref_var, comp_var, loa_type,
     guides(color = guide_legend(nrow = 1, title.position = "top", title.hjust = 0.5, label.position = "right", override.aes = list(size=4))) +
     theme(legend.text = element_text(margin = margin(r = .25, unit = 'cm')), legend.spacing.x = unit(0.005, 'cm')) + 
     facet_wrap(vars(device), nrow = 1) + labs(color='Data Set') +
-    geom_ribbon(data = subset(loa_df, loa_df$term == 'Bias'), aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) + 
-    geom_line(data = subset(loa_df, loa_df$term == 'Bias'), aes(x = ref, y = estimate, group = device), size=0.5, color='black', show.legend = FALSE) + 
-    geom_ribbon(data = subset(loa_df, loa_df$term == 'Lower LoA'), aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) +
-    geom_line(data = subset(loa_df, loa_df$term == 'Lower LoA'), aes(x = ref, y = estimate, group = device), linetype = 'dashed', size=0.5, color='black', show.legend = FALSE) + 
-    geom_ribbon(data = subset(loa_df, loa_df$term == 'Upper LoA'), aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) + 
-    geom_line(data = subset(loa_df, loa_df$term == 'Upper LoA'), aes(x = ref, y = estimate, group = device), linetype = 'dashed', size=0.5, color='black', show.legend = FALSE)
+    geom_ribbon(data = loa_df[loa_df$term == 'Bias', ], aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) + 
+    geom_line(data = loa_df[loa_df$term == 'Bias', ], aes(x = ref, y = estimate, group = device), size=0.5, color='black', show.legend = FALSE) + 
+    geom_ribbon(data = loa_df[loa_df$term == 'Lower LoA', ], aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) +
+    geom_line(data = loa_df[loa_df$term == 'Lower LoA', ], aes(x = ref, y = estimate, group = device), linetype = 'dashed', size=0.5, color='black', show.legend = FALSE) + 
+    geom_ribbon(data = loa_df[loa_df$term == 'Upper LoA', ], aes(x = ref, ymin = lower.ci, ymax = upper.ci, group = device), alpha = .15, show.legend = FALSE, inherit.aes = FALSE) + 
+    geom_line(data = loa_df[loa_df$term == 'Upper LoA', ], aes(x = ref, y = estimate, group = device), linetype = 'dashed', size=0.5, color='black', show.legend = FALSE)
 
   return(plot_grob)
   

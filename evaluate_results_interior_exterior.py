@@ -97,11 +97,12 @@ for data_dict in to_output:
 
         output_df = output_df_blank.copy()
 
-        for idx, d in enumerate(output_df['csv_filename']):
+        for idx in output_df.index:
 
             if (idx % 50) == 0:
                 print(f'On record {idx}')
 
+            d = output_df.loc[idx, 'csv_filename']
             filename = model_prefix + '_Predictions_' + os.path.splitext(d)[0] + '_additional_classifiers.csv'
             data = pd.read_csv(dataset_path + filename)
             # boolean to int for consistency with other output types
@@ -123,8 +124,9 @@ for data_dict in to_output:
             if data_set == 'Ecosleep':
                 sleep_wake = data['sleep_wake']
                 primary_interval = preprocessing.identify_sleep_interval(sleep_wake, 180)
-                data['lights_off'] = np.zeros(data.shape[0])
-                data.loc[np.arange(primary_interval[0], primary_interval[1]+1), 'lights_off'] = 1
+                lights_off_epochs = np.zeros(data.shape[0])
+                lights_off_epochs[primary_interval[0]:(primary_interval[1]+1)] = 1
+                data['lights_off'] = lights_off_epochs
 
             valid_rows = (data['within_staged_period'] == 1) & \
                 ~np.isnan(data['classification_sleep']) & \

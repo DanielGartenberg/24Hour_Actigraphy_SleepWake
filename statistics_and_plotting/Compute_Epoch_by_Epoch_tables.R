@@ -93,7 +93,7 @@ for (model_name in model_names){
             if (p_value < .01){
               p_value <- '<.01'
             } else {
-              p_value <- sprintf('%0.2f', p_value)
+              p_value <- sprintf('%0.3f', p_value)
             }
             
             if (length(ranef(lmer_result)$participant_id) == 2){
@@ -135,13 +135,13 @@ for (model_name in model_names){
           if (label == 'Penn_State'){
             
             if (m != 'auc'){
-              comparison_data = subset(reshaped_epoch_metrics, reshaped_epoch_metrics$type == ct)
+              comparison_data = reshaped_epoch_metrics[reshaped_epoch_metrics$type == ct, ]
               comparison_fixed_text <- summary_string_mixed_effects(comparison_data[,m], comparison_data[,'participant_id'], digits=3)
             } else {
               comparison_fixed_text <- 'NA'
             }
             
-            tcn_data = subset(reshaped_epoch_metrics, reshaped_epoch_metrics$type == 'classifier')
+            tcn_data = reshaped_epoch_metrics[reshaped_epoch_metrics$type == 'classifier', ]
             tcn_fixed_text <- summary_string_mixed_effects(tcn_data[,m], tcn_data[,'participant_id'], digits=3)
             
           } else {

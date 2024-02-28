@@ -266,7 +266,7 @@ for (model_name in model_names){
             if (p_value < .01){
               p_value <- '<.01'
             } else {
-              p_value <- sprintf('%0.2f', p_value)
+              p_value <- sprintf('%0.3f', p_value)
             }
             
             if (length(ranef(lmer_result)$participant_id) == 2){
@@ -297,8 +297,8 @@ for (model_name in model_names){
             # mean and standard deviation following mixed effects model fitting intercept only
             if (label == 'Penn_State'){
               intercept_only_formula <- as.formula(sprintf('%s ~ 1 + (1 | participant_id)', metric_name_meaure))
-              comparison_data = subset(difference_df, difference_df$type == 'comparison')
-              tcn_data = subset(difference_df, difference_df$type == 'classifier')
+              comparison_data = difference_df[difference_df$type == 'comparison', ]
+              tcn_data = difference_df[difference_df$type == 'classifier', ]
               
               comparison_fixed_text <- summary_string_mixed_effects(comparison_data[,metric_name_meaure], comparison_data[,'participant_id'])
               tcn_fixed_text <- summary_string_mixed_effects(tcn_data[,metric_name_meaure], tcn_data[,'participant_id'])
