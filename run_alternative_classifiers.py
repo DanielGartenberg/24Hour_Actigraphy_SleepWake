@@ -13,7 +13,7 @@ additional_output_path = 'output_with_additional_classifiers'
 
 # although the additional classifier output won't differ by TCN model type, append them to each output separately
 # to conform to how the rest of the processing pipeline is performed
-tcn_model_prefix = ['24_Hour_08_28_2022T05_10_00', '24_Hour_Bidirectional_09_08_2022T04_59_52']
+tcn_model_prefix = ['24_Hour_09_10_2023T18_38_25', '24_Hour_Bidirectional_09_09_2023T23_37_28']
 
 for m in tcn_model_prefix:
 

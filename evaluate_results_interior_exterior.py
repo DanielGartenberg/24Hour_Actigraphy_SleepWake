@@ -40,16 +40,16 @@ roc_curve_thresholds = np.arange(0, 1.001, .001)
 
 # summarize both Penn State and MESA datasets, with both models
 to_output = [{'label': 'Penn_State',
-              'model_prefix': '24_Hour_08_28_2022T05_10_00',
+              'model_prefix': '24_Hour_09_10_2023T18_38_25',
               'datasets': ['DeepSleeping', 'Ecosleep', 'SleepRestriction', 'SoundSleeping']},
              {'label': 'MESA',
-              'model_prefix': '24_Hour_08_28_2022T05_10_00',
+              'model_prefix': '24_Hour_09_10_2023T18_38_25',
               'datasets': ['MESA-COMMERCIAL-USE']},
              {'label': 'Penn_State',
-              'model_prefix': '24_Hour_Bidirectional_09_08_2022T04_59_52',
+              'model_prefix': '24_Hour_Bidirectional_09_09_2023T23_37_28',
               'datasets': ['DeepSleeping', 'Ecosleep', 'SleepRestriction', 'SoundSleeping']},
              {'label': 'MESA',
-              'model_prefix': '24_Hour_Bidirectional_09_08_2022T04_59_52',
+              'model_prefix': '24_Hour_Bidirectional_09_09_2023T23_37_28',
               'datasets': ['MESA-COMMERCIAL-USE']}]
 
 # assemble output columns

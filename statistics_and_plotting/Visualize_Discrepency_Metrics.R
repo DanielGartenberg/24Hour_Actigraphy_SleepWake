@@ -14,7 +14,7 @@ figure_output_path <- '../figures/'
 
 # generate a grid of value combinations to export
 output_parameters <- expand.grid(label = c('Penn_State', 'MESA'),
-                                 model_prefix = c('24_Hour_Bidirectional_09_08_2022T04_59_52'),
+                                 model_prefix = c('24_Hour_Bidirectional_09_09_2023T23_37_28'),
                                  interval = c('24_hour', 'lights_off'))
 
 

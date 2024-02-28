@@ -3,7 +3,7 @@ import numpy as np
 from tcn import TCN
 import pandas as pd
 
-models = ['24_Hour_08_28_2022T05_10_00', '24_Hour_Bidirectional_09_08_2022T04_59_52']
+models = ['24_Hour_09_10_2023T18_38_25', '24_Hour_Bidirectional_09_09_2023T23_37_28']
 
 for model_run_name in models:
 
