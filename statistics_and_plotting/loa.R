@@ -29,7 +29,7 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
   
   
 
-  # packages and functions to be used with boostrap CI
+  # packages and functions to be used with bootstrap CI
   if(CI.type=="boot"){ require(boot)
     # function to generate bootstrap CI for model parameters
     boot.reg <- function(data,formula,indices){ return(coef(lm(formula,data=data[indices,]))[2]) }
@@ -43,17 +43,12 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
   ba.stat <- bland.altman.stats(data[,measures[1]],data[,measures[2]],conf.int=CI.level)
   if(xaxis=="reference"){
     ba <- data.frame(size=ba.stat$groups$group2,diffs=ba.stat$diffs)
-    xlab <- paste("Reference",measure)
   } else if(xaxis=="mean"){
     ba <- data.frame(size=ba.stat$means,diffs=ba.stat$diffs)
-    xlab <- paste("Mean",measure,"by device and reference")
   } else { stop("Error: xaxis argument can be either 'reference' or 'mean'") }
   
   # range of values to be fitted for drawing the lines (i.e., from min to max of x-axis values, by .1)
   size <- seq(min(ba$size),max(ba$size),(max(ba$size)-min(ba$size))/((max(ba$size)-min(ba$size))*10))
-  
-  # basic plot
-  p <- ggplot(data=ba,aes(size,diffs))
   
   # ..........................................
   # 1. TESTING PROPORTIONAL BIAS
@@ -75,13 +70,13 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
       ba.stat$CI.lines[4] <- boot.ci(boot(ba$diffs,function(dat,idx)mean(dat[idx],na.rm=TRUE),R=boot.R),
                                      type=boot.type,conf=CI.level)[[4]][5] }
     
-    p <- p + # adding lines to plot
+    # output the bias, instead of plotting as in original BAplot
+    bias_df <- data.frame(ref = size,
+                          estimate = ba.stat$mean.diffs,
+                          lower.ci = ba.stat$CI.lines[3],
+                          upper.ci = ba.stat$CI.lines[4],
+                          row.names = NULL)
       
-      # bias and CI (i.e., mean diff)
-      geom_line(aes(y=ba.stat$mean.diffs),colour="red",size=1.5) +
-      geom_line(aes(y=ba.stat$CI.lines[3]),colour="red",linetype=2,size=1) +
-      geom_line(aes(y=ba.stat$CI.lines[4]),colour="red",linetype=2,size=1)
-    
     # ..........................................
     # 1.2. DIFFERENCES PROPORTIONAL TO SIZE
     # ..........................................
@@ -107,12 +102,13 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
       y.fit$y.biasCI.upr <- apply(fitted,2,quantile,probs=c((1-CI.level)/2))
       y.fit$y.biasCI.lwr <- apply(fitted,2,quantile,probs=c(CI.level+(1-CI.level)/2)) }
     
-    p <- p + # adding lines to plot
-      
-      # bias and CI (i.e., D = b0 + b1 * size)
-      geom_line(data=y.fit,aes(y=y.bias),colour="red",size=1.5) +
-      geom_line(data=y.fit,aes(y=y.biasCI.upr),colour="red",linetype=2,size=1) +
-      geom_line(data=y.fit,aes(y=y.biasCI.lwr),colour="red",linetype=2,size=1) }
+    # output the bias, instead of plotting as was done in BAplot
+    bias_df <- data.frame(ref = size,
+                          estimate = y.fit$y.bias,
+                          lower.ci = y.fit$y.biasCI.lwr,
+                          upper.ci = y.fit$y.biasCI.upr,
+                          row.names = NULL)
+    }
   
   # ..............................................
   # 2. LOAs ESTIMATION FROM ORIGINAL DATA
@@ -152,17 +148,18 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
                                             function(dat,idx)mean(dat[idx],na.rm=TRUE),R=boot.R),
                                        type=boot.type,conf=CI.level)[[4]][5] }
       
-      p <- p + # adding lines to plot
-        
-        # Upper LOA and CI (i.e., mean diff + 1.96 SD)
-        geom_line(aes(y=ba.stat$upper.limit),colour="darkgray",size=1.3) +
-        geom_line(aes(y=ba.stat$CI.lines[5]),colour="darkgray",linetype=2,size=1) +
-        geom_line(aes(y=ba.stat$CI.lines[6]),colour="darkgray",linetype=2,size=1) +
-        
-        # Lower LOA and CI (i.e., mean diff - 1.96 SD)
-        geom_line(aes(y=ba.stat$lower.limit),colour="darkgray",size=1.3) +
-        geom_line(aes(y=ba.stat$CI.lines[1]),colour="darkgray",linetype=2,size=1) +
-        geom_line(aes(y=ba.stat$CI.lines[2]),colour="darkgray",linetype=2,size=1)
+      # output the loa, instead of plotting as was done in BAplot
+      loa_u_df <- data.frame(ref = size,
+                             estimate = ba.stat$upper.limit,
+                             lower.ci = ba.stat$CI.lines[5],
+                             upper.ci = ba.stat$CI.lines[6],
+                             row.names = NULL)
+      
+      loa_l_df <- data.frame(ref = size,
+                             estimate = ba.stat$lower.limit,
+                             lower.ci = ba.stat$CI.lines[1],
+                             upper.ci = ba.stat$CI.lines[2],
+                             row.names = NULL)
       
       # ............................................
       # 2.2. PROPORTIONAL BIAS AND HOMOSCEDASTICITY
@@ -247,17 +244,18 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
     
     if(prop.bias==TRUE | heterosced==TRUE){
       
-      p <- p + # adding lines to plot
-        
-        # Upper LOA and CI
-        geom_line(data=y.fit,aes(y=y.LOAu),colour="darkgray",size=1.3) +
-        geom_line(data=y.fit,aes(y=y.LOAu.upr),colour="darkgray",linetype=2,size=1) +
-        geom_line(data=y.fit,aes(y=y.LOAu.lwr),colour="darkgray",linetype=2,size=1) +
-        
-        # Lower LOA and CI
-        geom_line(data=y.fit,aes(y=y.LOAl),colour="darkgray",size=1.3) +
-        geom_line(data=y.fit,aes(y=y.LOAl.upr),colour="darkgray",linetype=2,size=1) +
-        geom_line(data=y.fit,aes(y=y.LOAl.lwr),colour="darkgray",linetype=2,size=1)
+      # output the loa, instead of plotting as was done in BAplot
+      loa_u_df <- data.frame(ref = size,
+                             estimate = y.fit$y.LOAu,
+                             lower.ci = y.fit$y.LOAu.lwr,
+                             upper.ci = y.fit$y.LOAu.upr,
+                             row.names = NULL)
+      
+      loa_l_df <- data.frame(ref = size,
+                             estimate = y.fit$y.LOAl,
+                             lower.ci = y.fit$y.LOAl.lwr,
+                             upper.ci = y.fit$y.LOAl.upr,
+                             row.names = NULL)
       
     }
     
@@ -320,17 +318,18 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
     # adding bias values based on prop.bias
     if(prop.bias==FALSE){ y.fit$y.bias <- rep(ba.stat$mean.diffs,nrow(y.fit)) } else { y.fit$y.bias <- b0+b1*y.fit$size }
     
-    p <- p + # adding lines to plot
-      
-      # UPPER LIMIT (i.e., bias + 2 * (e^(1.96 SD) - 1)/(e^(1.96 SD) + 1))
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.upper),colour="darkgray",size=1.3) +
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.upper.upper),colour="darkgray",linetype=2,size=1) +
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.upper.lower),colour="darkgray",linetype=2,size=1) +
-      
-      # LOWER LIMIT (i.e., bias - 2 * (e^(1.96 SD) - 1)/(e^(1.96 SD) + 1))
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.lower),colour="darkgray",size=1.3) +
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.lower.upper),colour="darkgray",linetype=2,size=1) +
-      geom_line(data=y.fit,aes(y = y.bias + ANTLOGdiffs.lower.lower),colour="darkgray",linetype=2,size=1)
+    # output the loa, instead of plotting as was done in BAplot
+    loa_u_df <- data.frame(ref = size,
+                           estimate = y.fit$y.bias + y.fit$ANTLOGdiffs.upper,
+                           lower.ci = y.fit$y.bias + y.fit$ANTLOGdiffs.upper.lower,
+                           upper.ci = y.fit$y.bias + y.fit$ANTLOGdiffs.upper.upper,
+                           row.names = NULL)
+    
+    loa_l_df <- data.frame(ref = size,
+                           estimate = y.fit$y.bias + y.fit$ANTLOGdiffs.lower,
+                           lower.ci = y.fit$y.bias + y.fit$ANTLOGdiffs.lower.lower,
+                           upper.ci = y.fit$y.bias + y.fit$ANTLOGdiffs.lower.upper,
+                           row.names = NULL)
     
     # ..........................................
     # 3.3. HETEROSCHEDASTICITY (only a warning)
@@ -343,30 +342,10 @@ loa_non_mixed <- function(data=NA,measures=c("TST_device","TST_ref"),logTransf=F
                              round(coef(mRes)[2],2)," [",round(CIRes[1],2),", ",round(CIRes[2],2),"]",").",sep="")} }}
   
   
-  p <- p + # adding last graphical elements and plotting with marginal density distribution
-    
-    geom_point(size=4.5,shape=20) +
-    xlab(xlab) + ylab(paste("Device - reference differences in\n",measure,sep="")) +
-    ggtitle(paste("Bland-Altman plot of",measure))+
-    theme(axis.text = element_text(size=12,face="bold"),
-          axis.title = element_text(size=15,face="bold",colour="black"),
-          plot.title = element_text(hjust = 0.5,size=12,face="bold"))
-  if(!is.na(ylim[1])){ p <- p + ylim(ylim) }
-  if(!is.na(xlim[1])){ p <- p + xlim(xlim) }
-  
-  
-  # reformat y.fit to be in same format as loa_mixed
-  bias_df <- y.fit[,c('size', 'y.bias', 'y.biasCI.upr', 'y.biasCI.lwr')]
-  loa_u_df <- y.fit[,c('size', 'y.LOAu', 'y.LOAu.upr', 'y.LOAu.lwr')]
-  loa_l_df <- y.fit[,c('size', 'y.LOAl', 'y.LOAl.upr', 'y.LOAl.lwr')]
-  
+  # reformat to be in same format as loa_mixed
   bias_df$term = 'Bias'
   loa_u_df$term = 'Lower LoA'
   loa_l_df$term = 'Upper LoA'
-  
-  names(bias_df)[1:4] <- c('ref', 'estimate', 'lower.ci', 'upper.ci')
-  names(loa_u_df)[1:4] <- c('ref', 'estimate', 'lower.ci', 'upper.ci')
-  names(loa_l_df)[1:4] <- c('ref', 'estimate', 'lower.ci', 'upper.ci')
   
   loa_df <- do.call(rbind, list(bias_df, loa_u_df, loa_l_df))
   
